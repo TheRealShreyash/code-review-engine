@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/components/theme-provider";
 
-const playfairDisplay = Playfair_Display({subsets:['latin'],variable:'--font-serif'});
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-serif",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,9 +32,25 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-serif", playfairDisplay.variable)}
+      className={cn(
+        "h-full",
+        "antialiased",
+        geistSans.variable,
+        geistMono.variable,
+        "font-serif",
+        playfairDisplay.variable,
+      )}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
