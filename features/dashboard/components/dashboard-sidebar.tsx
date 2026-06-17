@@ -1,0 +1,65 @@
+import Image from "next/image";
+import Link from "next/link";
+
+import { DASHBOARD_ROUTES } from "../lib/routes";
+import { DashboardNav } from "./dashboard-nav";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+  SidebarSeparator,
+} from "@/components/ui/sidebar";
+import { UserMenuUser } from "@/features/auth/components/user-menu";
+import { SidebarUserButton } from "./dashbaord-user-button";
+
+type DashboardSidebarProps = {
+  user: UserMenuUser;
+  plan?: string;
+};
+
+export function DashboardSidebar({
+  user,
+  plan = "Pro",
+}: DashboardSidebarProps) {
+  return (
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            {/* 1. Added asChild here */}
+            <SidebarMenuButton size="lg" tooltip="ShasaAI" asChild>
+              {/* 2. Placed the Link directly inside as standard children */}
+              <Link href={DASHBOARD_ROUTES.overview}>
+                <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-none bg-sidebar">
+                  <Image
+                    src="/logo.svg"
+                    alt="ShasaAI Logo"
+                    width={62}
+                    height={62}
+                    className="object-contain invert"
+                  />
+                </span>
+                <span className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
+                  <span className="truncate font-medium">ShasaAI</span>
+                </span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <DashboardNav />
+      </SidebarContent>
+      <SidebarFooter>
+        <SidebarSeparator />
+        <SidebarUserButton user={user} plan={plan} />
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+  );
+}
