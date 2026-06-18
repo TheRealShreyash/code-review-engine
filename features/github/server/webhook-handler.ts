@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getGithubApp } from "./utils/github-app";
 import { savePullRequest } from "@/features/reviews/server/save-pull-request";
+import { inngest } from "@/features/inngest/client";
 
 const REVIEWABLE_ACTIONS = ["opened", "synchronize", "reopened"];
 
@@ -36,7 +37,7 @@ export async function handleGithubWebhook(req: NextRequest) {
 
   const event = JSON.parse(payload) as PullRequestWebhookPayload;
 
-  console.log(event)
+  console.log(event);
 
   if (!REVIEWABLE_ACTIONS.includes(event.action)) {
     return NextResponse.json({ recieved: true });
@@ -46,6 +47,10 @@ export async function handleGithubWebhook(req: NextRequest) {
 
   // todo : map github's installation id
   // todo : trigger the review job
+  await inngest.send({
+    name: "github/pr.received",
+    data: { pullRequestId: pullRequest.id },
+  });
 
   return NextResponse.json({ recieved: true });
 }

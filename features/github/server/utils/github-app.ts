@@ -1,15 +1,19 @@
 import { App } from "octokit";
 
 let githubApp: App | null = null;
+function getPrivateKey(): string {
+  return Buffer.from(
+    process.env.GITHUB_APP_PRIVATE_KEY_BINARY!,
+    "base64",
+  ).toString("utf-8");
+}
 
 export function getGithubApp() {
   if (!githubApp) {
+    const privateKey = getPrivateKey();
     githubApp = new App({
       appId: process.env.GITHUB_APP_ID!,
-      privateKey: process.env
-        .GITHUB_APP_PRIVATE_KEY!.replace(/\\n/g, "\n")
-        .replace(/\r/g, "")
-        .trim(),
+      privateKey,
       webhooks: {
         secret: process.env.GITHUB_WEBHOOK_SECRET!,
       },
