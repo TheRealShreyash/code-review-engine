@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getGithubApp } from "./utils/github-app";
 import { savePullRequest } from "@/features/reviews/server/save-pull-request";
 import { inngest } from "@/features/inngest/client";
+import { getUserIdByInstallationId } from "./installation";
+import { canUserReview } from "@/features/billing/server/usage";
+import { prisma } from "@/lib/db";
 
 const REVIEWABLE_ACTIONS = ["opened", "synchronize", "reopened"];
 
@@ -44,6 +47,25 @@ export async function handleGithubWebhook(req: NextRequest) {
   }
 
   const pullRequest = await savePullRequest(event);
+
+  const userId = await getUserIdByInstallationId(event.installation.id);
+
+  if (userId) {
+    const allowed = await canUserReview(userId);
+
+    if (!allowed) {
+      await prisma.pullRequest.update({
+        where: {
+          id: pullRequest.id,
+        },
+        data: {
+          status: "rate_limited",
+        },
+      });
+
+      return NextResponse.json({ received: true, rateLimited: true });
+    }
+  }
 
   // todo : map github's installation id
   // todo : trigger the review job
